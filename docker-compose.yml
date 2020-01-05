@@ -1,0 +1,72 @@
+version: '3.4'
+
+x-template: &mysql-template
+  env_file: ./.env
+  restart: always
+  networks:
+    - app-net
+  build: ./app
+  environment:
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
+    MYSQL_USER: ${MYSQL_USER}
+    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+services:
+  app:
+    container_name: poep-api
+    networks:
+      - app-net
+    links:
+      - db:db
+    build: ./app
+    restart: always
+    env_file: ./.env
+    volumes:
+      - ./app:/go/src/github.com/sheepover96/poep_api/app
+    ports:
+      - "8080:8080"
+    environment:
+      - "GOPATH=/go"
+    command: go run main.go
+  db:
+    <<: *mysql-template
+    container_name: poep-master-db
+    build: ./db
+    volumes:
+      - "./initdb.d:/docker-entrypoint-initdb.d"
+      - "./db/mysql_data:/var/lib/mysql"
+    ports:
+      - 3306:3306
+  db-slave:
+    <<: *mysql-template
+    container_name: poep-slave-db
+    depends_on:
+      - db
+    build: ./db
+    volumes:
+      - "./db/mysql_data:/var/lib/mysql"
+    ports:
+      - 3333:3306
+  server:
+    container_name: poep-server
+    networks:
+      - app-net
+    restart: always
+    build: ./server
+    volumes:
+      - "./server/nginx.conf:/etc/nginx/nginx.conf"
+    ports:
+      - "80:80"
+      - "443:443"
+    # volumes:
+    #   - ./app/static/:/var/www/static
+
+# volumes:
+#   mysql-data:
+#     external:
+#       name: mysql_volume
+
+networks:
+  app-net:
+    driver: bridge

@@ -1,0 +1,4 @@
+development:
+    dialect: mysql
+    dir: ./migrations
+    datasource: poepadmin:tTLJcWsVb6ME@tcp(127.0.0.1:3306)/poep_main_db?parseTime=true

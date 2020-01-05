@@ -1,0 +1,8 @@
+development:
+    dialect: mysql
+    database: poep_main_db
+    user: poepadmin
+    password: tTLJcWsVb6ME
+    host: 127.0.0.1
+    dir: ./migrations
+    # datasource: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/${MYSQL_DATABASE}?parseTime=true
